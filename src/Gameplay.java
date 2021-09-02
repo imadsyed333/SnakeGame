@@ -7,6 +7,8 @@ import java.awt.event.KeyEvent;
 import java.awt.Font;
 import java.awt.*;
 import javax.swing.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Random;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
     boolean play;
@@ -17,6 +19,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     Timer timer = new Timer(200, this);
     Image backgroundImage, snakeHeadImage, snakeBodyImage;
     int dirX, dirY;
+    Random random;
 
     public Gameplay() {
         body.add(new BodyLink(head.x + 50, head.y));
@@ -33,6 +36,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (play) {
             snakeMovement();
+            collisionDetection();
             repaint();
         }
     }
@@ -94,8 +98,22 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         head.y += 50 * dirY;
     }
 
-    public void generateFood() {
-        // Chicken nugget goes here
+    public void generateFood(Graphics2D g2) {
+        random = new Random();
+        int randomX = random.nextInt(getWidth() - 50);
+        int randomY = random.nextInt(getHeight() - 50);
+        Rectangle2D nugget = new Rectangle2D.Double(randomX, randomY, 50, 50);
+        g2.setColor(Color.orange);
+        g2.draw(nugget);
+        g2.fill(nugget);
+    }
+
+    public void collisionDetection() {
+        for (BodyLink chunk: body) {
+            if (head.boundingBox.intersects(chunk.boundingBox)) {
+                play = false;
+            }
+        }
     }
 
     @Override
