@@ -20,9 +20,9 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     Image backgroundImage, snakeHeadImage, snakeBodyImage;
     int dirX, dirY;
     Random random = new Random();
-    int randomX;
-    int randomY;
+    int randomX, randomY;
     BodyLink nugget;
+    String snakeHeadURL;
 
     public Gameplay() {
         addKeyListener(this);
@@ -43,7 +43,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         backgroundImage = Toolkit.getDefaultToolkit().getImage("./src/swirly background.jpg");
-        snakeHeadImage = Toolkit.getDefaultToolkit().getImage("./src/snake_head.png");
+        snakeHeadImage = Toolkit.getDefaultToolkit().getImage(snakeHeadURL);
         snakeBodyImage = Toolkit.getDefaultToolkit().getImage("./src/snake_body.png");
 
         g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
@@ -58,33 +58,35 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             g2.setColor(Color.orange);
             g2.draw(food);
             g2.fill(food);
+
+            g2.setColor(Color.white);
+            g2.setFont(scoreFont);
+            g2.drawString(Integer.toString(score), 0, 0);
         }
         timer.start();
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP) {
+            snakeHeadURL = "./src/snake_up.png";
             dirX = 0;
             dirY = -1;
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            snakeHeadURL = "./src/snake_down.png";
             dirX = 0;
             dirY = 1;
         }
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            snakeHeadURL = "./src/snake_left.png";
             dirX = -1;
             dirY = 0;
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            snakeHeadURL = "./src/snake_right.png";
             dirX = 1;
             dirY = 0;
-        }
-        else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
         }
     }
 
@@ -139,9 +141,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         dirX = -1;
         dirY = 0;
         play = true;
+        snakeHeadURL = "./src/snake_left.png";
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
     }
 }
