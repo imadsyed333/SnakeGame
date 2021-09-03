@@ -9,4 +9,8 @@ public class BodyLink {
         this.y = y;
         boundingBox = new Rectangle(this.x, this.y, 50, 50);
     }
+    public void move() {
+        this.boundingBox.x = this.x;
+        this.boundingBox.y = this.y;
+    }
 }

@@ -12,21 +12,19 @@ import java.util.Random;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
     boolean play;
-    BodyLink head = new BodyLink((int) getWidth() / 2, (int) getHeight() / 2);
-    ArrayList<BodyLink> body = new ArrayList<>();
-    int score, foodX, foodY;
+    BodyLink head;
+    ArrayList<BodyLink> body;
+    int score;
     Font scoreFont = new Font("calibri", Font.BOLD, 70);
     Timer timer = new Timer(200, this);
     Image backgroundImage, snakeHeadImage, snakeBodyImage;
     int dirX, dirY;
-    Random random;
+    Random random = new Random();
+    int randomX;
+    int randomY;
+    BodyLink nugget;
 
     public Gameplay() {
-        body.add(new BodyLink(head.x + 50, head.y));
-        body.add(new BodyLink(head.x + 100, head.y));
-        dirX = 0;
-        dirY = 0;
-        play = true;
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
@@ -49,9 +47,17 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         snakeBodyImage = Toolkit.getDefaultToolkit().getImage("./src/snake_body.png");
 
         g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        g2.drawImage(snakeHeadImage, head.x, head.y, 50, 50, this);
-        for (BodyLink chunk: body) {
-            g2.drawImage(snakeBodyImage, chunk.x, chunk.y, 50, 50, this);
+
+        if (play) {
+            g2.drawImage(snakeHeadImage, head.x, head.y, 50, 50, this);
+            for (BodyLink chunk: body) {
+                g2.drawImage(snakeBodyImage, chunk.x, chunk.y, 50, 50, this);
+            }
+
+            Rectangle2D food = new Rectangle2D.Double(nugget.x, nugget.y, 50, 50);
+            g2.setColor(Color.orange);
+            g2.draw(food);
+            g2.fill(food);
         }
         timer.start();
     }
@@ -78,6 +84,8 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             dirX = 1;
             dirY = 0;
         }
+        else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+        }
     }
 
     public void snakeMovement() {
@@ -88,32 +96,49 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
             BodyLink nextLink = body.get(i - 1);
             currLink.x = nextLink.x;
             currLink.y = nextLink.y;
+            currLink.move();
             i--;
         }
         currLink = body.get(i);
         currLink.x = head.x;
         currLink.y = head.y;
+        currLink.move();
 
         head.x += 50 * dirX;
         head.y += 50 * dirY;
+        head.move();
     }
 
-    public void generateFood(Graphics2D g2) {
-        random = new Random();
-        int randomX = random.nextInt(getWidth() - 50);
-        int randomY = random.nextInt(getHeight() - 50);
-        Rectangle2D nugget = new Rectangle2D.Double(randomX, randomY, 50, 50);
-        g2.setColor(Color.orange);
-        g2.draw(nugget);
-        g2.fill(nugget);
+    public void generateFood() {
+        nugget.x = random.nextInt(getWidth() - 50);
+        nugget.y = random.nextInt(getHeight() - 50);
     }
 
     public void collisionDetection() {
+        if (head.boundingBox.intersects(nugget.boundingBox)) {
+            generateFood();
+            nugget.move();
+            score++;
+            BodyLink end = body.get(body.size() - 1);
+            body.add(new BodyLink(end.x, end.y));
+            snakeMovement();
+        }
         for (BodyLink chunk: body) {
             if (head.boundingBox.intersects(chunk.boundingBox)) {
                 play = false;
             }
         }
+    }
+
+    public void initializeGame() {
+        nugget = new BodyLink(random.nextInt(getWidth() - 50), random.nextInt(getHeight() - 50));
+        head = new BodyLink((int) getWidth() / 2, (int) getHeight() / 2);
+        body = new ArrayList<>();
+        body.add(new BodyLink(head.x + 50, head.y));
+        body.add(new BodyLink(head.x + 100, head.y));
+        dirX = -1;
+        dirY = 0;
+        play = true;
     }
 
     @Override
