@@ -3,7 +3,7 @@ import javax.swing.JFrame;
 public class SnakeGame {
     public static void main(String[] args) {
         JFrame game = new JFrame();
-        game.setBounds(0, 0, 700, 600);
+        game.setBounds(0, 0, 1000, 1000);
         Gameplay mechanics = new Gameplay();
         game.setTitle("Snek");
         game.setResizable(false);
