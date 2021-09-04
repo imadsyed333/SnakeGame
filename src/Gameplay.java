@@ -7,7 +7,6 @@ import java.awt.event.KeyEvent;
 import java.awt.Font;
 import java.awt.*;
 import javax.swing.*;
-import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
@@ -17,7 +16,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     int score;
     Font scoreFont = new Font("calibri", Font.BOLD, 70);
     Timer timer = new Timer(200, this);
-    Image backgroundImage, snakeHeadImage, snakeBodyImage;
+    Image backgroundImage, snakeHeadImage, snakeBodyImage, foodImage;
     int dirX, dirY;
     Random random = new Random();
     int randomX, randomY;
@@ -45,6 +44,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         backgroundImage = Toolkit.getDefaultToolkit().getImage("./src/swirly background.jpg");
         snakeHeadImage = Toolkit.getDefaultToolkit().getImage(snakeHeadURL);
         snakeBodyImage = Toolkit.getDefaultToolkit().getImage("./src/snake_body.png");
+        foodImage = Toolkit.getDefaultToolkit().getImage("./src/chicken.png");
 
         g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
 
@@ -54,10 +54,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
                 g2.drawImage(snakeBodyImage, chunk.x, chunk.y, 50, 50, this);
             }
 
-            Rectangle2D food = new Rectangle2D.Double(nugget.x, nugget.y, 50, 50);
-            g2.setColor(Color.orange);
-            g2.draw(food);
-            g2.fill(food);
+            g2.drawImage(foodImage, nugget.x, nugget.y, 50, 50, this);
 
             g2.setColor(Color.white);
             g2.setFont(scoreFont);
@@ -112,8 +109,11 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     }
 
     public void generateFood() {
-        nugget.x = random.nextInt(getWidth() - 50);
-        nugget.y = random.nextInt(getHeight() - 50);
+        int smallWidth = getWidth() / 50;
+        int smallHeight = getHeight() / 50;
+        nugget.x = random.nextInt(smallWidth - 1) * 50;
+        nugget.y = random.nextInt(smallHeight - 1) * 50;
+        nugget.move();
     }
 
     public void collisionDetection() {
@@ -128,12 +128,14 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         for (BodyLink chunk: body) {
             if (head.boundingBox.intersects(chunk.boundingBox)) {
                 play = false;
+                initializeGame();
             }
         }
     }
 
     public void initializeGame() {
-        nugget = new BodyLink(random.nextInt(getWidth() - 50), random.nextInt(getHeight() - 50));
+        nugget = new BodyLink(0, 0);
+        generateFood();
         head = new BodyLink((int) getWidth() / 2, (int) getHeight() / 2);
         body = new ArrayList<>();
         body.add(new BodyLink(head.x + 50, head.y));
@@ -141,6 +143,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
         dirX = -1;
         dirY = 0;
         play = true;
+        score = 0;
         snakeHeadURL = "./src/snake_left.png";
     }
 
